@@ -11,40 +11,55 @@
 (rf/reg-event-db :initialise-db
   (fn [_ _]
     (println "Initializing db")
-    {:users {#uuid "432fe1b1-d664-4ecc-9f10-f141637d37e1"
-                {:id #uuid "432fe1b1-d664-4ecc-9f10-f141637d37e1"
-                 :name "John Doe"}}
-     :tasks {#uuid "6f098720-a532-48f0-bac1-563360ef1d66"
-                {:id #uuid "6f098720-a532-48f0-bac1-563360ef1d66"
-                 :user-id #uuid "432fe1b1-d664-4ecc-9f10-f141637d37e1"}
-             #uuid "1b496ac1-a3f6-4418-b90f-a43035e34daa"
-                {:id #uuid "1b496ac1-a3f6-4418-b90f-a43035e34daa"
-                 :user-id #uuid "432fe1b1-d664-4ecc-9f10-f141637d37e1"}}}))
+    {:users {"432fe1b1-d664-4ecc-9f10-f141637d37e1"
+                {:id "432fe1b1-d664-4ecc-9f10-f141637d37e1"
+                 :name "John Doe"}
+             "8a29db11-c98f-4cbf-b49b-59f0c0cbf5ba"
+                {:id "8a29db11-c98f-4cbf-b49b-59f0c0cbf5ba"
+                 :name "Jane Doe"}}
+     ;; TODO: `tasks` aren't related to users, we either use an
+     ;; intermediary `:tasks-by-user` db or connect via `[:users user-id :tasks]`
+     :tasks {"6f098720-a532-48f0-bac1-563360ef1d66"
+                {:id "6f098720-a532-48f0-bac1-563360ef1d66"
+                 :name "Imuroi"
+                 :price 3}
+             "1b496ac1-a3f6-4418-b90f-a43035e34daa"
+                {:id "1b496ac1-a3f6-4418-b90f-a43035e34daa"
+                 :name "Tiskaa"
+                 :price 3}}
+     :deeds [{:task-id "1b496ac1-a3f6-4418-b90f-a43035e34daa"
+              :user-id "432fe1b1-d664-4ecc-9f10-f141637d37e1"
+              :approved true}
+             {:task-id "6f098720-a532-48f0-bac1-563360ef1d66"
+              :user-id "432fe1b1-d664-4ecc-9f10-f141637d37e1"}
+             {:task-id "6f098720-a532-48f0-bac1-563360ef1d66"
+              :user-id "8a29db11-c98f-4cbf-b49b-59f0c0cbf5ba"}]}))
 
 (defn select [params]
   @(rf/subscribe [(first params) (rest params)]))
 
 (rf/reg-sub :get-user
   (fn [db [_ [user-id]]]
-    (get-in db [:users (uuid user-id)])))
+    (get-in db [:users user-id])))
 
 (rf/reg-sub :get-tasks (fn [db _] (:tasks db)))
 
-(rf/reg-sub :get-tasks-by-user-id
-  (fn [_ _] (rf/subscribe [:get-tasks]))
-  (fn [tasks [_ [user-id]]]
-    (let [-user-id (uuid user-id)]
-      (filter #(= (:user-id %) -user-id) (vals tasks)))))
+(rf/reg-sub :get-deeds (fn [db _] (:deeds db)))
+
+(rf/reg-sub :get-deeds-by-user-id
+  (fn [db [_ [user-id]]]
+    (let [tasks (:tasks db)]
+      (->> (:deeds db)
+           (map #(assoc % :task (get tasks (:task-id %))))))))
 
 (defn user-view [{:keys [user-id]}]
-  (let [user (select [:get-user user-id])
-        tasks (select [:get-tasks-by-user-id user-id])]
-    (println :user-view user tasks)
+  (let [deeds (select [:get-deeds-by-user-id user-id])
+        user (select [:get-user user-id])]
     [:div.user
      [:h2 (:name user)]
      [:ul
-      (for [task tasks]
-        ^{:key (:id task)} [:li (:id task)])]]))
+      (for [deed deeds]
+        [:li (get-in deed [:task :name])])]]))
 
 (defn hello-world []
   [:div.hello-world
