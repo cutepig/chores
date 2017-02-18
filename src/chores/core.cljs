@@ -61,10 +61,21 @@
       (for [deed deeds]
         [:li (get-in deed [:task :name])])]]))
 
+(defn tasks-view []
+  (let [tasks (select [:get-tasks])]
+    (println :tasks-view tasks)
+    [:div.tasks
+     [:h2 "Tasks"]
+     [:ul
+       (for [task (vals tasks)]
+         ^{:key (:id task)}
+         [:li (str (:name task) " - " (:price task) "€")])]]))
+
 (defn hello-world []
   [:div.hello-world
    [:h1 "Hello world!"]
-   [user-view {:user-id "432fe1b1-d664-4ecc-9f10-f141637d37e1"}]])
+   [user-view {:user-id "432fe1b1-d664-4ecc-9f10-f141637d37e1"}]
+   [tasks-view]])
 
 (r/render-component [hello-world]
                     (. js/document (getElementById "app")))
