@@ -52,6 +52,10 @@
       (->> (:deeds db)
            (map #(assoc % :task (get tasks (:task-id %))))))))
 
+(rf/reg-event-db :add-deed
+  (fn [db [_ user-id task-id]]
+    (update db :deeds #(conj % {:user-id user-id :task-id task-id}))))
+
 (defn user-view [{:keys [user-id]}]
   (let [deeds (select [:get-deeds-by-user-id user-id])
         user (select [:get-user user-id])]
@@ -69,7 +73,13 @@
      [:ul
        (for [task (vals tasks)]
          ^{:key (:id task)}
-         [:li (str (:name task) " - " (:price task) "€")])]]))
+         [:li
+          (str (:name task) " - " (:price task) "€")
+          [:button {:on-click #(rf/dispatch
+                                 [:add-deed
+                                  "432fe1b1-d664-4ecc-9f10-f141637d37e1"
+                                  (:id task)])}
+           "Add deed"]])]]))
 
 (defn hello-world []
   [:div.hello-world
