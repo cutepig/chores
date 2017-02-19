@@ -1,0 +1,18 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "groups": {
+      "$group": {
+        ".read": "auth != null && data.hasChild('members/' + auth.uid)",
+        ".write": "auth != null && (!data.exists() || data.hasChild('members/' + auth.uid))",
+      }
+    },
+    "users": {
+      "$user": {
+        ".read": "auth != null && auth.uid === $user",
+        ".write": "auth != null && auth.uid === $user",
+      }
+    }
+  }
+}
