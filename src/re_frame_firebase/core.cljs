@@ -13,15 +13,15 @@
       ::firebase
       ;; TODO: Make more of this action configurable, is it `.on` or is it `.once`,
       ;; Do we subscribe to `value` or one of the child-events
-      (fn [db-atom [_ path mapper-fn read-ev error-ev]]
-        (println "firebase subscription:" path mapper-fn read-ev error-ev @refs)
+      ;; TODO: Should `mapper` be just a `read-path` making reaction `(get-in @db-atom read-path)`?
+      (fn [db-atom [_ path mapper read-ev]]
         (let [-ref (or (get @refs path) (.ref fb-db path))
               read-fn #(rf/dispatch (conj read-ev (js->clj (.val %) :keywordize-keys true)))
               ;; TODO: Error-ev? where to hook
               unref (.on -ref "value" read-fn)]
           (swap! refs #(assoc % path -ref))
           (ratom/make-reaction
-            (fn [] (mapper-fn @db-atom))
+            (fn [] (mapper @db-atom))
             :on-dispose #(.off -ref "value" read-fn)))))
 
     ;; Service
