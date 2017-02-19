@@ -6,6 +6,8 @@
 (defn reg-firebase [firebase]
   ;; TODO: Reference counting for firebase refs. Currently we just leave them hanging.
   ;; But we do get rid of subscriptions created with `ref.on()`.
+  ;; TODO: In addition to ref we should also store the generated atom which we can
+  ;; then pull from cache.
   (let [refs (atom {})
         fb-db (.database firebase)
         fb-auth (.auth firebase)]
@@ -29,7 +31,8 @@
     (rf/reg-sub-raw
       ::auth
       (fn [db-atom [_ mapper read-ev]]
-        (let [read-fn #(rf/dispatch (conj read-ev (js->clj % :keywordize-keys true)))
+        ;; NOTE: No point in converting `User` instance to clj
+        (let [read-fn #(rf/dispatch (conj read-ev %))
               unref (.onAuthStateChanged fb-auth read-fn)]
           (ratom/make-reaction
             (fn [] (mapper @db-atom))
@@ -44,16 +47,18 @@
         (for [[path data done-ev error-ev] ops]
           (-> (.ref fb-db path)
               (.set data)
-              (.then #(rf/dispatch (conj done-ev %))
+              (.then #(rf/dispatch (conj done-ev (js->clj % :keywordize-keys true)))
                      #(rf/dispatch (conj error-ev %)))))))
 
     ;; Auth service
+    ;; TODO: run auth info (js->cljs % :keywordize-keys trye)
     (rf/reg-fx
       ::auth
       ;; TODO: Support all types of logins as well as signup
       (fn [[email password done-ev error-ev]]
         (-> fb-auth
             (.signInWithEmailAndPassword email password)
+            ;; NOTE: No point in converting `User` instance to clj
             (.then #(rf/dispatch (conj done-ev %))
                    #(rf/dispatch (conj error-ev %))))))
 
@@ -64,6 +69,7 @@
         (println :ref-fx-signup email password)
         (-> fb-auth
             (.createUserWithEmailAndPassword email password)
+            ;; NOTE: No point in converting `User` instance to clj
             (.then #(rf/dispatch (conj done-ev %))
                    #(rf/dispatch (conj error-ev %))))))
 
@@ -73,6 +79,7 @@
       (fn [[done-ev error-ev]]
         (println :ref-fx-logout done-ev error-ev)
         (-> (.signOut fb-auth)
+            ;; NOTE: No point in converting `User` instance to clj
             (.then #(rf/dispatch (conj done-ev %))
                    #(rf/dispatch (conj error-ev %))))))
 

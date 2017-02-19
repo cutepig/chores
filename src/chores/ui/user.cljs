@@ -32,7 +32,7 @@
     (rf/subscribe [::firebase/db "/users" #(get % :users) [::set-users]])))
 
 (rf/reg-sub ::firebase-user
-  (fn [[_ user-id] x]
+  (fn [[_ user-id] _]
     (rf/subscribe [::firebase/db
                    (str "/users/" user-id)
                    #(get-in % [::users user-id])
@@ -75,9 +75,9 @@
     (if (= password password2)
       (rf/dispatch [::firebase/signup email password [::set-auth] [::set-auth-error]]))))
 
-(defn user-login-panel []
-  [:div.user-login-panel
-   [:form {:on-submit login}
+(defn login-panel []
+  [:div.login-panel
+   [:form.login-panel-login {:on-submit login}
     [:h3 "Login"]
     [:label
      "E-mail"
@@ -86,7 +86,7 @@
      "Password"
      [:input {:name "password" :type :password}]]
     [:button {:type :submit} "Login"]]
-   [:form {:on-submit signup}
+   [:div.login-panel-signup {:on-submit signup}
     [:h3 "Sign up"]
     [:label
      "E-mail"
@@ -99,23 +99,27 @@
      [:input {:name "password2" :type :password}]]
     [:button {:type :submit} "Signup"]]])
 
-(defn user-info-panel [{:keys [user]}]
+(defn user-info-panel [{:keys [auth-user user]}]
   [:div.user-info-panel
-   [:pre (js/JSON.stringify user nil 2)]
+   [:pre (js/JSON.stringify auth-user nil 2)]
+   [:pre (js/JSON.stringify (clj->js user) nil 2)]
    [:button {:on-click #(rf/dispatch [::firebase/logout
                                       [::set-auth]
                                       [::set-auth-error]])}
     "Logout"]])
 
 (defn user-panel []
-  (let [user @(rf/subscribe [::firebase/auth
-                             #(get-in % [::auth])
-                             [::set-auth]])]
+  (let [auth-user @(rf/subscribe [::firebase/auth
+                                  #(get-in % [::auth])
+                                  [::set-auth]])
+        ;; NOTE: Will N subscriptions cause N redispatched actions to go out?
+        ;; Specially when using `::firebase-user` that will redispatch with `::set-user`
+        user @(rf/subscribe [::firebase-user (if (nil? auth-user) nil (.-uid auth-user))])]
     [:div.user-panel
      [:h2 "Current user"]
-     (if (nil? user)
-       [user-login-panel]
-       [user-info-panel {:user user}])]))
+     (if (nil? auth-user)
+       [login-panel]
+       [user-info-panel {:auth-user auth-user :user user}])]))
 
 
 
