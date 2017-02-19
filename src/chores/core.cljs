@@ -1,6 +1,13 @@
 (ns chores.core
   (:require [reagent.core :as r]
-            [re-frame.core :as rf]))
+            [re-frame.core :as rf]
+            [cljsjs.firebase]
+            [re-frame-firebase.core :as firebase]
+            [camel-snake-kebab.core]
+            [chores.ui.user :as ui-user]))
+
+;; TODO: Use `camel-snake-kebab to convert between "memberId" to :member-id
+;; etc..
 
 (enable-console-print!)
 
@@ -8,9 +15,9 @@
 
 ;; define your app data so that it doesn't get over-written on reload
 
-(rf/reg-event-db :initialise-db
+;; FIXME: Not liking this, setting everything in one place. Distribute! Distribute!
+(rf/reg-event-db :initialize-db
   (fn [_ _]
-    (println "Initializing db")
     {:users {"432fe1b1-d664-4ecc-9f10-f141637d37e1"
                 {:id "432fe1b1-d664-4ecc-9f10-f141637d37e1"
                  :name "John Doe"}
@@ -85,14 +92,25 @@
   [:div.hello-world
    [:h1 "Hello world!"]
    [user-view {:user-id "432fe1b1-d664-4ecc-9f10-f141637d37e1"}]
-   [tasks-view]])
+   [tasks-view]
+   [ui-user/user-groups {:user-id "ZWqmz3Ma7CQbg7orX1ny9NIzrx23"}]])
 
-(r/render-component [hello-world]
-                    (. js/document (getElementById "app")))
+(def firebase-config {:apiKey "AIzaSyDg0XgimVokGyOIQREFSSUow441WFx5O1w"
+                      ;; TODO: Is this `localhost` in local development?
+                      :authDomain "moneyfunnysonny.firebaseapp.com"
+                      :databaseURL "https://moneyfunnysonny.firebaseio.com/"
+                      ; :storageBucket "<BUCKET>.appspot.com"
+                      ; :messagingSenderId "<SENDER_ID>"
+                     })
+
+(do
+  (rf/dispatch [:initialize-db])
+  (firebase/reg-firebase (firebase/initialize-firebase firebase-config))
+  (r/render-component [hello-world] (. js/document (getElementById "app"))))
 
 (defn on-js-reload []
   ;; optionally touch your app-state to force rerendering depending on
   ;; your application
   ;; (swap! app-state update-in [:__figwheel_counter] inc)
-  (rf/dispatch [:initialise-db])
+  ; (rf/dispatch [:initialize-db])
 )
