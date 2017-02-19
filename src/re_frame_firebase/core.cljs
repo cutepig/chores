@@ -31,30 +31,79 @@
       (fn [db-atom [_ mapper read-ev]]
         (let [read-fn #(rf/dispatch (conj read-ev (js->clj % :keywordize-keys true)))
               unref (.onAuthStateChanged fb-auth read-fn)]
-          (read-fn (.-currentUser fb-auth))
           (ratom/make-reaction
             (fn [] (mapper @db-atom))
             :on-dispose unref))))
 
-    ;; Service
+    ;; DB service
     (rf/reg-fx
-      ::firebase
+      ::db
       ;; TODO: Make the action configurable with different actions:
       ;; `set`, `update`, `remove`, `push`
       (fn [ops]
         (for [[path data done-ev error-ev] ops]
           (-> (.ref fb-db path)
               (.set data)
-              (.then #(rf/dispatch done-ev %) #(rf/dispatch error-ev %))))))
+              (.then #(rf/dispatch (conj done-ev %))
+                     #(rf/dispatch (conj error-ev %)))))))
 
-    ;; I lost the trail of thoughts so I don't know what I was aiming for here.
-    ;; Probably something awesome but what is it?
+    ;; Auth service
+    (rf/reg-fx
+      ::auth
+      ;; TODO: Support all types of logins as well as signup
+      (fn [[email password done-ev error-ev]]
+        (-> fb-auth
+            (.signInWithEmailAndPassword email password)
+            (.then #(rf/dispatch (conj done-ev %))
+                   #(rf/dispatch (conj error-ev %))))))
 
-    ;; Event
+    ;; TODO: Hide logins and signups behind single ::auth
+    (rf/reg-fx
+      ::signup
+      (fn [[email password done-ev error-ev]]
+        (println :ref-fx-signup email password)
+        (-> fb-auth
+            (.createUserWithEmailAndPassword email password)
+            (.then #(rf/dispatch (conj done-ev %))
+                   #(rf/dispatch (conj error-ev %))))))
+
+    ;; TODO: Hide logins and signups behind single ::auth
+    (rf/reg-fx
+      ::logout
+      (fn [[done-ev error-ev]]
+        (println :ref-fx-logout done-ev error-ev)
+        (-> (.signOut fb-auth)
+            (.then #(rf/dispatch (conj done-ev %))
+                   #(rf/dispatch (conj error-ev %))))))
+
+    ;; DB event
     (rf/reg-event-fx
-      ::firebase
+      ::db
       (fn [cofx [_ path data done-ev error-ev]]
-        (comment "Here we get or create the ref, ")))))
+        ;; TODO: update with conj to vector
+        (assoc cofx ::db [[path data done-ev error-ev]])))
+
+    ;; Auth event
+    (rf/reg-event-fx
+      ::auth
+      (fn [cofx [_ email password done-ev error-ev]]
+        (println :reg-event-fx-auth cofx)
+        ;; TODO: update with conj to vector
+        (assoc cofx ::auth [email password done-ev error-ev])))
+
+    ;; Signup event
+    ;; TODO: Make :signup request to ::auth once we migrate ::auth and ::signup services
+    (rf/reg-event-fx
+      ::signup
+      (fn [cofx [_ email password done-ev error-ev]]
+        ;; TODO: update with conj to vector
+        (assoc cofx ::signup [email password done-ev error-ev])))
+
+    (rf/reg-event-fx
+      ::logout
+      (fn [cofx [_ done-ev error-ev]]
+        ;; TODO: update with conj to vector
+        (assoc cofx ::logout [done-ev error-ev])))))
 
 (defn initialize-firebase [config]
   (try

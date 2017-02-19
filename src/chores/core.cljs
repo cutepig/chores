@@ -91,8 +91,8 @@
 (defn hello-world []
   [:div.hello-world
    [:h1 "Hello world!"]
-   [user-view {:user-id "432fe1b1-d664-4ecc-9f10-f141637d37e1"}]
-   [tasks-view]
+   ; [user-view {:user-id "432fe1b1-d664-4ecc-9f10-f141637d37e1"}]
+   ; [tasks-view]
    [ui-user/user-groups {:user-id "ZWqmz3Ma7CQbg7orX1ny9NIzrx23"}]
    [ui-user/user-panel]])
 

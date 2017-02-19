@@ -23,6 +23,10 @@
   (fn [db [_ auth]]
     (assoc-in db [::auth] auth)))
 
+(rf/reg-event-db ::set-auth-error
+  [rf/debug]
+  (fn [db _] db))
+
 (rf/reg-sub ::firebase-users
   (fn [_ _]
     (rf/subscribe [::firebase/db "/users" #(get % :users) [::set-users]])))
@@ -53,12 +57,65 @@
       (for [[group-id name] (:groups user)]
         ^{:key group-id} [:li name])]]))
 
+(defn login [ev]
+  (println "login" ev)
+  (.preventDefault ev)
+  (let [form-data (js/FormData. (.-currentTarget ev))
+        email (.get form-data "email")
+        password (.get form-data "password")]
+    (rf/dispatch [::firebase/auth email password [::set-auth] [::set-auth-error]])))
+
+(defn signup [ev]
+  (println "signup" ev)
+  (.preventDefault ev)
+  (let [form-data (js/FormData. (.-currentTarget ev))
+        email (.get form-data "email")
+        password (.get form-data "password")
+        password2 (.get form-data "password2")]
+    (if (= password password2)
+      (rf/dispatch [::firebase/signup email password [::set-auth] [::set-auth-error]]))))
+
+(defn user-login-panel []
+  [:div.user-login-panel
+   [:form {:on-submit login}
+    [:h3 "Login"]
+    [:label
+     "E-mail"
+     [:input {:name "email" :type :email}]]
+    [:label
+     "Password"
+     [:input {:name "password" :type :password}]]
+    [:button {:type :submit} "Login"]]
+   [:form {:on-submit signup}
+    [:h3 "Sign up"]
+    [:label
+     "E-mail"
+     [:input {:name "email" :type :email}]]
+    [:label
+     "Password"
+     [:input {:name "password" :type :password}]]
+    [:label
+     "Password again"
+     [:input {:name "password2" :type :password}]]
+    [:button {:type :submit} "Signup"]]])
+
+(defn user-info-panel [{:keys [user]}]
+  [:div.user-info-panel
+   [:pre (js/JSON.stringify user nil 2)]
+   [:button {:on-click #(rf/dispatch [::firebase/logout
+                                      [::set-auth]
+                                      [::set-auth-error]])}
+    "Logout"]])
+
 (defn user-panel []
-  (let [auth-user @(rf/subscribe [::firebase/auth
-                                  #(get-in % [::auth])
-                                  [::set-auth]])]
+  (let [user @(rf/subscribe [::firebase/auth
+                             #(get-in % [::auth])
+                             [::set-auth]])]
     [:div.user-panel
      [:h2 "Current user"]
-     [:pre auth-user]]))
+     (if (nil? user)
+       [user-login-panel]
+       [user-info-panel {:user user}])]))
+
 
 
