@@ -21,7 +21,11 @@
    [:h3 (:name task)]
    [:h4 (str (:value task) " €")]
    [:p (:description task)]
-   [:button "Add"]])
+   [:button {:on-click (fn [ev]
+                         (.preventDefault ev)
+                         (.pushState js/history nil nil "/foo"))}
+
+    "Add"]])
 
 (defn tasks-list [{:keys [group-id]}]
   (let [tasks @(rf/subscribe [::get-tasks group-id])]

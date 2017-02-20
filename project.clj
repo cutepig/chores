@@ -70,6 +70,7 @@
              ;; doesn't work for you just run your own server :) (see lein-ring)
 
              ;; :ring-handler hello_world.server/handler
+             :ring-handler figwheel-server.core/handler
 
              ;; To be able to open files in your editor from the heads up display
              ;; you will need to put a script on your path.
@@ -98,7 +99,8 @@
 
   :profiles {:dev {:dependencies [[binaryage/devtools "0.9.0"]
                                   [figwheel-sidecar "0.5.9"]
-                                  [com.cemerick/piggieback "0.2.1"]]
+                                  [com.cemerick/piggieback "0.2.1"]
+                                  [figwheel-pushstate-server "0.1.0"]]
                    ;; need to add dev source path here to get user.clj loaded
                    :source-paths ["src" "dev"]
                    ;; for CIDER
