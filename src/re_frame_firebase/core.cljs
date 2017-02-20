@@ -18,6 +18,7 @@
       ;; Do we subscribe to `value` or one of the child-events
       ;; TODO: Should `mapper` be just a `read-path` making reaction `(get-in @db-atom read-path)`?
       (fn [db-atom [_ path mapper read-ev]]
+        (println "sub" ::db path)
         (let [-ref (or (get @refs path) (.ref fb-db path))
               read-fn #(rf/dispatch (conj read-ev (js->clj (.val %) :keywordize-keys true)))
               ;; TODO: Error-ev? where to hook

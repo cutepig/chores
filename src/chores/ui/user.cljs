@@ -27,11 +27,11 @@
   [rf/debug]
   (fn [db _] db))
 
-(rf/reg-sub ::firebase-users
+(rf/reg-sub ::get-users
   (fn [_ _]
     (rf/subscribe [::firebase/db "/users" #(get % :users) [::set-users]])))
 
-(rf/reg-sub ::firebase-user
+(rf/reg-sub ::get-user
   (fn [[_ user-id] _]
     (rf/subscribe [::firebase/db
                    (str "/users/" user-id)
@@ -39,7 +39,7 @@
                    [::set-user user-id]]))
   (fn [user _] user))
 
-(rf/reg-sub ::firebase-groups
+(rf/reg-sub ::get-groups
   (fn [_ _]
     (rf/subscribe [::firebase/db
                    "/groups"
@@ -48,7 +48,7 @@
   (fn [groups _] groups))
 
 (defn user-groups [{:keys [user-id]}]
-  (let [user @(rf/subscribe [::firebase-user user-id])]
+  (let [user @(rf/subscribe [::get-user user-id])]
     (println :user-groups user)
     [:div.user-groups
      ;; TODO: User name to firebase:users/$user-id
@@ -103,6 +103,7 @@
   [:div.user-info-panel
    [:pre (js/JSON.stringify auth-user nil 2)]
    [:pre (js/JSON.stringify (clj->js user) nil 2)]
+   [user-groups {:user-id (:id user)}]
    [:button {:on-click #(rf/dispatch [::firebase/logout
                                       [::set-auth]
                                       [::set-auth-error]])}
@@ -113,8 +114,8 @@
                                   #(get-in % [::auth])
                                   [::set-auth]])
         ;; NOTE: Will N subscriptions cause N redispatched actions to go out?
-        ;; Specially when using `::firebase-user` that will redispatch with `::set-user`
-        user @(rf/subscribe [::firebase-user (if (nil? auth-user) nil (.-uid auth-user))])]
+        ;; Specially when using `::get-user` that will redispatch with `::set-user`
+        user @(rf/subscribe [::get-user (if (nil? auth-user) nil (.-uid auth-user))])]
     [:div.user-panel
      [:h2 "Current user"]
      (if (nil? auth-user)
