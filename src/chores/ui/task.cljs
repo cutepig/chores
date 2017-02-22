@@ -22,8 +22,7 @@
    [:h4 (str (:value task) " €")]
    [:p (:description task)]
    [:button {:on-click (fn [ev]
-                         (.preventDefault ev)
-                         (.pushState js/history nil nil "/foo"))}
+                         (.pushState js/history #js {} nil (str "/tasks/" (:id task))))}
 
     "Add"]])
 

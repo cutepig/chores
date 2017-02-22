@@ -3,6 +3,7 @@
             [re-frame.core :as rf]
             [cljsjs.firebase]
             [re-frame-firebase.core :as firebase]
+            [re-frame-history.core :as history]
             [camel-snake-kebab.core]
             [chores.ui.user :as ui-user]
             [chores.ui.task :as ui-task]))
@@ -38,6 +39,7 @@
 (do
   (rf/dispatch [:initialize-db])
   (firebase/reg-firebase (firebase/initialize-firebase firebase-config))
+  (history/reg-history (.createBrowserHistory js/History))
   (r/render-component [hello-world] (. js/document (getElementById "app"))))
 
 (defn on-js-reload []
