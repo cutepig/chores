@@ -152,10 +152,9 @@
                                   [::set-auth]])
         ;; NOTE: Will N subscriptions cause N redispatched actions to go out?
         ;; Specially when using `::get-user` that will redispatch with `::set-user`
-        user @(rf/subscribe [::get-user (if (nil? auth-user) nil (.-uid auth-user))])
-        history @(rf/subscribe [::history/location #(get-in % [::location]) [::location]])]
+        user @(rf/subscribe [::get-user (if (nil? auth-user) nil (.-uid auth-user))])]
+
     [:div.user-panel
-     (println "current location" history)
      [:div {:on-click #(rf/dispatch [::history/push "/groups"])} "Link test"]
      [:h2 "Current user"]
      (if (nil? auth-user)

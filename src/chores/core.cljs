@@ -58,6 +58,11 @@
 (defn hello-world []
   [:div.hello-world
    [:h1 "Hello world!"]
+   ; Link tests
+   [:a {:href "/"} "Hello!"]
+   [:a {:href "/groups"} "Groups"]
+   [:a {:href "/groups/123"} "Group 123"]
+   [:a {:href "/groups/123/users/34"} "User 34"]
    [ui-user/user-panel]
    [ui-task/tasks-list {:group-id "d1dcedb2-e7be-401c-a71c-a5008d225916"}]
    [router/router {:routes routes}]])
