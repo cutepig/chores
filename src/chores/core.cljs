@@ -28,13 +28,27 @@
   (silk/routes [[::index [[]]]
                 [::groups [["groups"]]]
                 [::group [["groups" :group-id]]]
-                [::user [["groups" :group-id "users" :user-id]]]
-                [::user [["bar" :group-id "users" :user-id]]]]))
+                [::user [["groups" :group-id "users" :user-id]]]]))
 
 (router/reg-route ::index
   (fn index-page [_]
     [:div.index-page
      [:h1 "Hello!"]]))
+
+(router/reg-route ::groups
+  (fn groups-page [_]
+    [:div.groups-page
+     [:h1 "Groups!"]]))
+
+(router/reg-route ::group
+  (fn group-page [_]
+    [:div.group-page
+     [:h1 "One single group!"]]))
+
+(router/reg-route ::user
+  (fn user-page [_]
+    [:div.user-page
+     [:h1 "User!"]]))
 
 (router/reg-route :default
   (fn not-found-page [_]

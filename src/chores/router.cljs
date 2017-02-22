@@ -19,11 +19,19 @@
   (fn [db [_ location]]
     (assoc db ::location location)))
 
+(rf/reg-sub ::route
+  (fn [[_ routes] _]
+    (rf/subscribe [::history/location #(get % ::location) [::location]]))
+  (fn [location [_ routes]]
+    ; @see https://github.com/ReactTraining/history#listening
+    (when (some? location)
+      (silk/arrive routes (.-pathname location)))))
+
 (defn router [{:keys [routes]}]
-  (let [location @(rf/subscribe [::history/location #(get % ::location) [::location]])]
-    [:div.router
-       [:h2 "Router here!"]
-       ; @see https://github.com/ReactTraining/history#listening
-       [:h3 (.-pathname location)]]))
+  (let [route @(rf/subscribe [::route routes])
+        node (or (reg-route-fn route) [:div])]
+    (into node [:div.router
+                 [:h2 "Router here!"]
+                 [:h3 (str route)]])))
 
 
