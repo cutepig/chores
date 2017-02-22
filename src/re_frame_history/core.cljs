@@ -18,9 +18,9 @@
     (fn [db-atom [_ mapper-fn read-ev]]
       (println ::history read-ev)
       ;; TODO: Map location and state objects properly between cljs and js
-      (let [read-fn #(rf/dispatch (conj read-ev %1))
+      (let [read-fn #(rf/dispatch (conj read-ev %1 %2))
             unlisten (.listen history read-fn)]
-        (read-fn (.-location history))
+        (read-fn (.-location history) nil)
         (ratom/make-reaction
           (fn [_] (mapper-fn @db-atom))
           :on-dispose unlisten))))
@@ -30,7 +30,7 @@
     (fn [[op pathname state]]
       (condp = op
         ;; TODO: Support state
-        ::push (.push history pathname)
-        ::replace (.replace history pathname)))))
+        ::push (.push history pathname state)
+        ::replace (.replace history pathname state)))))
 
 

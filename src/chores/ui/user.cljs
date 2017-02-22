@@ -40,6 +40,7 @@
 
 (rf/reg-sub ::get-user
   (fn [[_ user-id] _]
+    ;; FIXME: Don't call when user-id is nil
     (rf/subscribe [::firebase/db
                    (str "/users/" user-id)
                    #(get-in % [::users user-id])
@@ -48,6 +49,7 @@
 
 (rf/reg-sub ::get-deeds
   (fn [[_ group-id] _]
+    ;; FIXME: Don't call when group-id is nil
     (rf/subscribe [::firebase/db
                    (str "/groups/" group-id "/deeds")
                    #(get % ::deeds)
@@ -56,6 +58,7 @@
 
 (rf/reg-sub ::get-deeds-by-user
   (fn [[_ group-id user-id] _]
+    ;; FIXME: Don't call when group-id  or user-id is nil
     (rf/subscribe [::get-deeds group-id]))
   (fn [deeds [_ _ user-id]]
     (filter #(= (:memberId %) user-id) (vals deeds))))

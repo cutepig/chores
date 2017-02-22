@@ -7,7 +7,8 @@
             [domkm.silk :as silk]
             [camel-snake-kebab.core]
             [chores.ui.user :as ui-user]
-            [chores.ui.task :as ui-task]))
+            [chores.ui.task :as ui-task]
+            [chores.router :as router]))
 
 ;; TODO: Use `camel-snake-kebab to convert between "memberId" to :member-id
 ;; etc..
@@ -30,11 +31,22 @@
                 [::user [["groups" :group-id "users" :user-id]]]
                 [::user [["bar" :group-id "users" :user-id]]]]))
 
+(router/reg-route ::index
+  (fn index-page [_]
+    [:div.index-page
+     [:h1 "Hello!"]]))
+
+(router/reg-route :default
+  (fn not-found-page [_]
+    [:div.not-found-page
+     [:h1 "Not found!"]]))
+
 (defn hello-world []
   [:div.hello-world
    [:h1 "Hello world!"]
    [ui-user/user-panel]
-   [ui-task/tasks-list {:group-id "d1dcedb2-e7be-401c-a71c-a5008d225916"}]])
+   [ui-task/tasks-list {:group-id "d1dcedb2-e7be-401c-a71c-a5008d225916"}]
+   [router/router {:routes routes}]])
 
 (def firebase-config {:apiKey "AIzaSyDg0XgimVokGyOIQREFSSUow441WFx5O1w"
                       ;; TODO: Is this `localhost` in local development?
