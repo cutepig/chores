@@ -4,6 +4,7 @@
             [cljsjs.firebase]
             [re-frame-firebase.core :as firebase]
             [re-frame-history.core :as history]
+            [domkm.silk :as silk]
             [camel-snake-kebab.core]
             [chores.ui.user :as ui-user]
             [chores.ui.task :as ui-task]))
@@ -21,6 +22,13 @@
 ;; TODO: Move to utils
 (defn select [params]
   @(rf/subscribe [(first params) (rest params)]))
+
+(def routes
+  (silk/routes [[::index [[]]]
+                [::groups [["groups"]]]
+                [::group [["groups" :group-id]]]
+                [::user [["groups" :group-id "users" :user-id]]]
+                [::user [["bar" :group-id "users" :user-id]]]]))
 
 (defn hello-world []
   [:div.hello-world

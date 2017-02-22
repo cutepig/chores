@@ -13,6 +13,8 @@
                  [reagent "0.6.0"]
                  [re-frame "0.9.2"]
                  [cljsjs/firebase "3.5.3-0"]
+                 [com.domkm/silk "0.1.2"]
+                 [kibu/pushy "0.3.6"]
                  [camel-snake-kebab "0.4.0"]]
 
   :plugins [[lein-figwheel "0.5.9"]

@@ -137,9 +137,10 @@
                                       [::set-auth-error]])}
     "Logout"]])
 
-(rf/reg-event-db ::set-location
+(rf/reg-event-db ::location
   [rf/debug]
   (fn [db [_ location]]
+    (println ::location location)
     (assoc db ::location location)))
 
 (defn user-panel []
@@ -149,9 +150,10 @@
         ;; NOTE: Will N subscriptions cause N redispatched actions to go out?
         ;; Specially when using `::get-user` that will redispatch with `::set-user`
         user @(rf/subscribe [::get-user (if (nil? auth-user) nil (.-uid auth-user))])
-        history @(rf/subscribe [::history/history #(get-in % [::location]) [::set-location]])]
+        history @(rf/subscribe [::history/location #(get-in % [::location]) [::location]])]
     [:div.user-panel
      (println "current location" history)
+     [:div {:on-click #(rf/dispatch [::history/push "/groups"])} "Link test"]
      [:h2 "Current user"]
      (if (nil? auth-user)
        [login-panel]
