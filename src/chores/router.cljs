@@ -39,14 +39,17 @@
       (silk/arrive routes (.-pathname location)))))
 
 (defn router [{:keys [routes]}]
+  ;; TODO: Use `create-class` and register the handler to the root dom node
   (r/with-let [click-handler (make-click-handler)
                _ (.addEventListener js/document "click" click-handler true)]
     (let [route @(rf/subscribe [::route routes])
+          children (r/children (r/current-component))
           node (or (reg-route-fn route) [:div])]
-      (into node [:div.router
-                   [:h2 "Router here!"]
-                   [:h3 (str route)]]))
+      (comment (into node [[:div.router
+                            [:h2 "Router here!"]
+                            [:h3 (str route)]]]))
+      (into node children))
     (finally
-      (do .removeEventListener js/document "click" click-handler true))))
+      (.removeEventListener js/document "click" click-handler true))))
 
 

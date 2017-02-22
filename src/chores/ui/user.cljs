@@ -155,7 +155,6 @@
         user @(rf/subscribe [::get-user (if (nil? auth-user) nil (.-uid auth-user))])]
 
     [:div.user-panel
-     [:div {:on-click #(rf/dispatch [::history/push "/groups"])} "Link test"]
      [:h2 "Current user"]
      (if (nil? auth-user)
        [login-panel]

@@ -41,31 +41,37 @@
      [:h1 "Groups!"]]))
 
 (router/reg-route ::group
-  (fn group-page [_]
+  (fn group-page [{:keys [group-id]}]
     [:div.group-page
-     [:h1 "One single group!"]]))
+     [:h1 (str "One single group! " group-id)]]))
 
 (router/reg-route ::user
-  (fn user-page [_]
+  (fn user-page [{:keys [group-id user-id]}]
     [:div.user-page
-     [:h1 "User!"]]))
+     [:h1 (str "User! " group-id ":" user-id)]]))
 
 (router/reg-route :default
   (fn not-found-page [_]
     [:div.not-found-page
      [:h1 "Not found!"]]))
 
-(defn hello-world []
-  [:div.hello-world
+(defn top-panel []
+  [:div.top-panel
    [:h1 "Hello world!"]
    ; Link tests
    [:a {:href "/"} "Hello!"]
    [:a {:href "/groups"} "Groups"]
    [:a {:href "/groups/123"} "Group 123"]
    [:a {:href "/groups/123/users/34"} "User 34"]
+   [:button {:on-click #(rf/dispatch [::history/push "/foo"])} "Foo!"]])
+
+(defn hello-world []
+  [:div.hello-world
+   [top-panel]
    [ui-user/user-panel]
    [ui-task/tasks-list {:group-id "d1dcedb2-e7be-401c-a71c-a5008d225916"}]
-   [router/router {:routes routes}]])
+   [router/router {:routes routes}
+    [:div.something [:h2 "I am a child of router!"]]]])
 
 (def firebase-config {:apiKey "AIzaSyDg0XgimVokGyOIQREFSSUow441WFx5O1w"
                       ;; TODO: Is this `localhost` in local development?
