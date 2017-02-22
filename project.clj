@@ -39,7 +39,7 @@
                            :open-urls ["http://localhost:3449/index.html"]}
 
                 :compiler {:main chores.core
-                           :asset-path "js/compiled/out"
+                           :asset-path "/js/compiled/out"
                            :output-to "resources/public/js/compiled/chores.js"
                            :output-dir "resources/public/js/compiled/out"
                            :source-map-timestamp true
