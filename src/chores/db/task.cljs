@@ -5,10 +5,8 @@
 
 (rf/reg-sub ::tasks
   (fn [[_ group-id] _]
-    (println ::tasks-group-id group-id)
     (rf/subscribe [::group/group group-id]))
   (fn [group _]
-    (println ::tasks group)
     (:tasks group)))
 
 

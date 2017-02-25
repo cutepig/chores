@@ -44,8 +44,7 @@
 
 (defn chores-screen []
   [:div.chores
-   [router/router {:routes routes}
-    [:button {:on-click #(rf/dispatch [::firebase/logout])} "Logout"]]])
+   [router/router {:routes routes}]])
 
 (def firebase-config {:apiKey "AIzaSyDg0XgimVokGyOIQREFSSUow441WFx5O1w"
                       ;; TODO: Is this `localhost` in local development?

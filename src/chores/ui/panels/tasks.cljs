@@ -4,7 +4,6 @@
 
 (defn tasks-panel [{:keys [group-id]}]
   (let [tasks @(rf/subscribe [::task/tasks group-id])]
-    (println tasks)
     [:ul.tasks
      (for [[task-id task] tasks]
        ^{:key task-id}

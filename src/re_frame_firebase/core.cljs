@@ -19,7 +19,7 @@
       ;; TODO: Should `mapper` be just a `read-path` making reaction `(get-in @db-atom read-path)`?
       ;; TODO: Drop the `mapper` and `read-ev` totally, we write and read from ::db
       ;; Just supply a handler for errors
-      ;; TODO: `path` as kv
+      ;; Also `path` as kv
       (fn [db-atom [_ path mapper read-ev]]
         (println "sub" ::db path)
         (let [-ref (or (get @refs path) (.ref fb-db path))
@@ -40,6 +40,7 @@
         ;; NOTE: No point in converting `User` instance to clj
         (let [read-fn #(rf/dispatch (conj read-ev %))
               unref (.onAuthStateChanged fb-auth read-fn)]
+          ;; NOTE: Not doing initial dispatch for current user
           (ratom/make-reaction
             (fn [] (mapper @db-atom))
             :on-dispose unref))))
