@@ -41,18 +41,9 @@
     (if (= password password2)
       (rf/dispatch [::firebase/signup email password [::signup] [::signup-error]]))))
 
-(defn login-panel []
-  [:div.login-panel
-   [:form.login-panel-login {:on-submit on-login}
-    [:h3 "Login"]
-    [:label
-     "E-mail"
-     [:input {:name "email" :type :email}]]
-    [:label
-     "Password"
-     [:input {:name "password" :type :password}]]
-    [:button {:type :submit} "Login"]]
-   [:div.login-panel-signup {:on-submit on-signup}
+(defn signup-panel []
+  [:div.signup
+   [:form {:on-submit on-signup}
     [:h3 "Sign up"]
     [:label
      "E-mail"
@@ -64,4 +55,16 @@
      "Password again"
      [:input {:name "password2" :type :password}]]
     [:button {:type :submit} "Signup"]]])
+
+(defn login-panel []
+  [:div.login
+   [:form {:on-submit on-login}
+    [:h3 "Login"]
+    [:label
+     "E-mail"
+     [:input {:name "email" :type :email}]]
+    [:label
+     "Password"
+     [:input {:name "password" :type :password}]]
+    [:button {:type :submit} "Login"]]])
 

@@ -19,13 +19,14 @@
       (if (= 1 (count groups))
         ;; TODO: `[::route/route <route key>]` using `silk/depart`
         (rf/dispatch [::history/push (str "/groups/" (name (ffirst groups)))]))
-      [:div.groups
-       [:h1 "Groups!"]
-       [:ul
-        (for [[group-id group-name] groups]
-          ^{:key group-id}
-          [:li
-            [:a {:href (str "/groups/" group-id)} group-name]])]])))
+      [main-layout
+       [:div.groups
+        [:h1 "Groups!"]
+        [:ul
+         (for [[group-id group-name] groups]
+           ^{:key group-id}
+           [:li
+             [:a {:href (str "/groups/" (name group-id))} group-name]])]]])))
 
 (router/reg-route ::groups groups-screen)
 

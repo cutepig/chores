@@ -3,14 +3,14 @@
             [re-frame.core :as rf]
             [cljsjs.firebase]))
 
-(defn reg-firebase [firebase]
+(defn reg-firebase [firebase-app]
   ;; TODO: Reference counting for firebase refs. Currently we just leave them hanging.
   ;; But we do get rid of subscriptions created with `ref.on()`.
   ;; TODO: In addition to ref we should also store the generated atom which we can
   ;; then pull from cache.
   (let [refs (atom {})
-        fb-db (.database firebase)
-        fb-auth (.auth firebase)]
+        fb-db (.database firebase-app)
+        fb-auth (.auth firebase-app)]
     ;; Database subscription
     (rf/reg-sub-raw
       ::db
@@ -21,7 +21,6 @@
       ;; Just supply a handler for errors
       ;; Also `path` as kv
       (fn [db-atom [_ path mapper read-ev]]
-        (println "sub" ::db path)
         (let [-ref (or (get @refs path) (.ref fb-db path))
               read-fn #(rf/dispatch (conj read-ev (js->clj (.val %) :keywordize-keys true)))
               ;; TODO: Error-ev? where to hook
@@ -62,18 +61,27 @@
     (rf/reg-fx
       ::auth
       ;; TODO: Support all types of logins as well as signup
-      (fn [[email password done-ev error-ev]]
-        (-> fb-auth
-            (.signInWithEmailAndPassword email password)
-            ;; NOTE: No point in converting `User` instance to clj
-            (.then #(rf/dispatch (conj done-ev %))
-                   #(rf/dispatch (conj error-ev %))))))
+      (fn [[type {:keys [done-ev error-ev] :as params}]]
+        (println ::auth-fx type done-ev error-ev)
+        (condp = type
+          :email (-> fb-auth
+                     (.signInWithEmailAndPassword (:email params) (:password params))
+                     ;; NOTE: No point in converting `User` instance to clj
+                     (.then #(rf/dispatch (conj done-ev %))
+                            #(rf/dispatch (conj error-ev %))))
+          :google (let [provider (new js/firebase.auth.GoogleAuthProvider)]
+                    (.addScope provider "profile")
+                    (.addScope provider "email")
+                    (println ::google provider)
+                    (-> fb-auth
+                        (.signInWithPopup provider)
+                        (.then #(rf/dispatch (conj done-ev (.-result %)))
+                               #(rf/dispatch (conj error-ev %))))))))
 
     ;; TODO: Hide logins and signups behind single ::auth
     (rf/reg-fx
       ::signup
       (fn [[email password done-ev error-ev]]
-        (println :ref-fx-signup email password)
         (-> fb-auth
             (.createUserWithEmailAndPassword email password)
             ;; NOTE: No point in converting `User` instance to clj
@@ -84,7 +92,6 @@
     (rf/reg-fx
       ::logout
       (fn [[done-ev error-ev]]
-        (println :ref-fx-logout done-ev error-ev)
         (-> (.signOut fb-auth)
             ;; NOTE: No point in converting `User` instance to clj
             (.then #(rf/dispatch (conj done-ev %))
@@ -100,10 +107,9 @@
     ;; Auth event
     (rf/reg-event-fx
       ::auth
-      (fn [cofx [_ email password done-ev error-ev]]
-        (println :reg-event-fx-auth cofx)
+      (fn [cofx [_ type params]]
         ;; TODO: update with conj to vector
-        (assoc cofx ::auth [email password done-ev error-ev])))
+        (assoc cofx ::auth type params)))
 
     ;; Signup event
     ;; TODO: Make :signup request to ::auth once we migrate ::auth and ::signup services

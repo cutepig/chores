@@ -8,10 +8,20 @@
   (fn [db [_ auth]]
     (assoc db ::auth auth)))
 
+(rf/reg-event-db ::auth-error
+  [rf/debug]
+  (fn [db [_ auth]] db))
+
 (rf/reg-event-db ::user
   [rf/debug]
   (fn [db [_ user]]
     (assoc db ::user user)))
+
+(rf/reg-event-fx ::login
+  (fn [fx [_ type params]]
+    (assoc fx :dispatch [::firebase/auth
+                         [type
+                                                  {:done-ev [::auth] :error-ev [::auth-error]}]])))
 
 (rf/reg-sub ::auth
   (fn [_ _]
