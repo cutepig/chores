@@ -1,5 +1,6 @@
 (ns chores.ui.screens.groups
   (:require [re-frame.core :as rf]
+            [re-frame-history.core :as history]
             [chores.router :as router]
             [chores.db.user :as user]))
 
@@ -12,7 +13,9 @@
 ;; TODO: Go directly to group if there is only 1 group
 (defn groups-screen [_]
   (let [groups @(rf/subscribe [::groups])]
-    (println ::groups-screen groups)
+    (if (= 1 (count groups))
+      ;; TODO: `[::route/route <route key>]` using `silk/depart`
+      (rf/dispatch [::history/push (str "/groups/" (name (ffirst groups)))]))
     [:div.groups
      [:h1 "Groups!"]
      [:ul

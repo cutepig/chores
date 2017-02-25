@@ -8,7 +8,8 @@
             [camel-snake-kebab.core]
             [chores.router :as router]
             [chores.ui.screens.home :as home]
-            [chores.ui.screens.groups :as groups]))
+            [chores.ui.screens.groups :as groups]
+            [chores.ui.screens.group :as group]))
 
 ;; TODO: Use `camel-snake-kebab to convert between "memberId" to :member-id
 ;; etc..
@@ -26,14 +27,10 @@
 
 (def routes
   (silk/routes [[::home/index [[]]]
+                [::home/index [["index.html"]]]
                 [::groups/groups [["groups"]]]
-                [::group [["groups" :group-id]]]
+                [::group/group [["groups" :group-id]]]
                 [::user [["groups" :group-id "users" :user-id]]]]))
-
-(router/reg-route ::group
-  (fn group-page [{:keys [group-id]}]
-    [:div.group-page
-     [:h1 (str "One single group! " group-id)]]))
 
 (router/reg-route ::user
   (fn user-page [{:keys [group-id user-id]}]
@@ -45,19 +42,10 @@
     [:div.not-found-page
      [:h1 "Not found!"]]))
 
-(defn top-panel []
-  [:div.top-panel
-   [:h1 "Hello world!"]
-   ; Link tests
-   [:a {:href "/"} "Hello!"]
-   [:a {:href "/groups"} "Groups"]
-   [:a {:href "/groups/123"} "Group 123"]
-   [:a {:href "/groups/123/users/34"} "User 34"]
-   [:button {:on-click #(rf/dispatch [::history/push "/foo"])} "Foo!"]])
-
 (defn chores-screen []
   [:div.chores
-   [router/router {:routes routes}]])
+   [router/router {:routes routes}
+    [:button {:on-click #(rf/dispatch [::firebase/logout])} "Logout"]]])
 
 (def firebase-config {:apiKey "AIzaSyDg0XgimVokGyOIQREFSSUow441WFx5O1w"
                       ;; TODO: Is this `localhost` in local development?
