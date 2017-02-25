@@ -6,9 +6,9 @@
             [re-frame-history.core :as history]
             [domkm.silk :as silk]
             [camel-snake-kebab.core]
-            [chores.ui.user :as ui-user]
-            [chores.ui.task :as ui-task]
-            [chores.router :as router]))
+            [chores.router :as router]
+            [chores.ui.screens.home :as home]
+            [chores.ui.screens.groups :as groups]))
 
 ;; TODO: Use `camel-snake-kebab to convert between "memberId" to :member-id
 ;; etc..
@@ -25,20 +25,10 @@
   @(rf/subscribe [(first params) (rest params)]))
 
 (def routes
-  (silk/routes [[::index [[]]]
-                [::groups [["groups"]]]
+  (silk/routes [[::home/index [[]]]
+                [::groups/groups [["groups"]]]
                 [::group [["groups" :group-id]]]
                 [::user [["groups" :group-id "users" :user-id]]]]))
-
-(router/reg-route ::index
-  (fn index-page [_]
-    [:div.index-page
-     [:h1 "Hello!"]]))
-
-(router/reg-route ::groups
-  (fn groups-page [_]
-    [:div.groups-page
-     [:h1 "Groups!"]]))
 
 (router/reg-route ::group
   (fn group-page [{:keys [group-id]}]
@@ -65,13 +55,9 @@
    [:a {:href "/groups/123/users/34"} "User 34"]
    [:button {:on-click #(rf/dispatch [::history/push "/foo"])} "Foo!"]])
 
-(defn hello-world []
-  [:div.hello-world
-   [top-panel]
-   [ui-user/user-panel]
-   [ui-task/tasks-list {:group-id "d1dcedb2-e7be-401c-a71c-a5008d225916"}]
-   [router/router {:routes routes}
-    [:div.something [:h2 "I am a child of router!"]]]])
+(defn chores-screen []
+  [:div.chores
+   [router/router {:routes routes}]])
 
 (def firebase-config {:apiKey "AIzaSyDg0XgimVokGyOIQREFSSUow441WFx5O1w"
                       ;; TODO: Is this `localhost` in local development?
@@ -85,7 +71,7 @@
   (rf/dispatch [:initialize-db])
   (firebase/reg-firebase (firebase/initialize-firebase firebase-config))
   (history/reg-history (.createBrowserHistory js/History))
-  (r/render-component [hello-world] (. js/document (getElementById "app"))))
+  (r/render-component [chores-screen] (. js/document (getElementById "app"))))
 
 (defn on-js-reload []
   ;; optionally touch your app-state to force rerendering depending on

@@ -17,6 +17,9 @@
       ;; TODO: Make more of this action configurable, is it `.on` or is it `.once`,
       ;; Do we subscribe to `value` or one of the child-events
       ;; TODO: Should `mapper` be just a `read-path` making reaction `(get-in @db-atom read-path)`?
+      ;; TODO: Drop the `mapper` and `read-ev` totally, we write and read from ::db
+      ;; Just supply a handler for errors
+      ;; TODO: `path` as kv
       (fn [db-atom [_ path mapper read-ev]]
         (println "sub" ::db path)
         (let [-ref (or (get @refs path) (.ref fb-db path))
@@ -29,6 +32,8 @@
             :on-dispose #(.off -ref "value" read-fn)))))
 
     ;; Authentication subscription
+    ;; TODO: Drop the `mapper` and `read-ev` totally, we write and read from ::db
+    ;; Just supply a handler for errors
     (rf/reg-sub-raw
       ::auth
       (fn [db-atom [_ mapper read-ev]]
