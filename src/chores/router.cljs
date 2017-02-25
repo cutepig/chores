@@ -45,9 +45,6 @@
     (let [route @(rf/subscribe [::route routes])
           children (r/children (r/current-component))
           node (or (reg-route-fn route) [:div])]
-      (comment (into node [[:div.router
-                            [:h2 "Router here!"]
-                            [:h3 (str route)]]]))
       (into node children))
     (finally
       (.removeEventListener js/document "click" click-handler true))))
