@@ -1,0 +1,25 @@
+{
+  "name": "chores",
+  "version": "0.0.1",
+  "description": "FIXME: Write a one-line description of your library/project.",
+  "main": "index.js",
+  "scripts": {
+    "test": "sass-lint",
+    "build:css": "node-sass --include-path node_modules --include-path src src/chores/ui/index.scss > resources/public/css/style.css",
+    "watch:css": "chokidar \"src/chores/**/*.scss\" --initial --verbose -c \"npm run build:css\"",
+    "start": "start powershell -command \"lein figwheel\" && npm run watch:css"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cutepig/chores.git"
+  },
+  "keywords": [],
+  "author": "Alex Seidler",
+  "license": "ISC",
+  "devDependencies": {
+    "bourbon": "^4.2.7",
+    "chokidar-cli": "^1.2.0",
+    "node-sass": "^4.5.0",
+    "sass-lint": "^1.9.1"
+  }
+}

@@ -1,7 +1,8 @@
 body {
   background-color: rgba(99, 0, 255, 0.7);
   color: white;
-  font-family: Roboto, "Segoe UI", Helvetica, Arial, sans-serif; }
+  font-family: Roboto, "Segoe UI", Helvetica, Arial, sans-serif;
+}
 
 button {
   padding: 8px;
@@ -10,26 +11,29 @@ button {
   background-color: green;
   color: white;
   cursor: pointer;
-  transition: all 0.2s ease-in-out; }
+  transition: all 0.2s ease-in-out;
+}
 
 button:hover {
-  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.2); }
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.2);
+}
 
 button:active {
   background-color: yellow;
   color: black;
-  transform: scale(1.1); }
+  transform: scale(1.1);
+}
 
 label {
   display: inline-block;
-  padding: 8px; }
-
-label > input {
-  margin-left: 8px; }
+  padding: 8px;
+}
+label > input { margin-left: 8px; }
 
 input[type="text"],
 input[type="email"],
 input[type="password"] {
   padding: 8px;
   border: none;
-  border-radius: 8px; }
+  border-radius: 8px;
+}
