@@ -57,7 +57,6 @@
                    #(rf/dispatch (conj error-ev %))))))
 
     ;; Auth service
-    ;; TODO: run auth info (js->cljs % :keywordize-keys trye)
     (rf/reg-fx
       ::auth
       ;; TODO: Support all types of logins as well as signup

@@ -22,6 +22,12 @@
                          [::add-deed-done]
                          [::add-deed-error]])))
 
+(rf/reg-sub ::deeds
+  (fn [[_ group-id] _]
+    (rf/subscribe [::group/group group-id]))
+  (fn [group _]
+    (:deeds group)))
+
 (rf/reg-sub ::tasks
   (fn [[_ group-id] _]
     (rf/subscribe [::group/group group-id]))

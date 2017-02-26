@@ -14,13 +14,12 @@
    [:p (:description task)]
    [:button {:on-click #(on-add-deed group-id user-id task-id)} "+"]])
 
-(defn tasks-panel [{:keys [group-id]}]
-  (let [tasks @(rf/subscribe [::task/tasks group-id])
-        user @(rf/subscribe [::user/user])]
+(defn tasks-panel [{:keys [group-id user-id]}]
+  (let [tasks @(rf/subscribe [::task/tasks group-id])]
     [:ul.tasks
      (for [[task-id task] tasks]
        ^{:key task-id}
        [:li
-        [task-panel {:group-id group-id :user-id (:id user) :task-id (name task-id) :task task}]])]))
+        [task-panel {:group-id group-id :user-id user-id :task-id (name task-id) :task task}]])]))
 
 
