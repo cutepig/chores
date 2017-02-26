@@ -49,12 +49,12 @@
       ::db
       ;; TODO: Make the action configurable with different actions:
       ;; `set`, `update`, `remove`, `push`
-      (fn [ops]
-        (for [[path data done-ev error-ev] ops]
-          (-> (.ref fb-db path)
-              (.set data)
-              (.then #(rf/dispatch (conj done-ev (js->clj % :keywordize-keys true)))
-                     #(rf/dispatch (conj error-ev %)))))))
+      (fn [[path data done-ev error-ev]]
+        (println ::db-fx path data done-ev error-ev)
+        (-> (.ref fb-db path)
+            (.set (clj->js data))
+            (.then #(rf/dispatch done-ev)
+                   #(rf/dispatch (conj error-ev %))))))
 
     ;; Auth service
     ;; TODO: run auth info (js->cljs % :keywordize-keys trye)
@@ -101,15 +101,14 @@
     (rf/reg-event-fx
       ::db
       (fn [cofx [_ path data done-ev error-ev]]
-        ;; TODO: update with conj to vector
-        (assoc cofx ::db [[path data done-ev error-ev]])))
+        (println ::db-event-fx path data done-ev error-ev)
+        (assoc cofx ::db [path data done-ev error-ev])))
 
     ;; Auth event
     (rf/reg-event-fx
       ::auth
       (fn [cofx [_ type params]]
-        ;; TODO: update with conj to vector
-        (assoc cofx ::auth type params)))
+        (assoc cofx ::auth [type params])))
 
     ;; Signup event
     ;; TODO: Make :signup request to ::auth once we migrate ::auth and ::signup services
