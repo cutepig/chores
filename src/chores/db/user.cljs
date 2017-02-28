@@ -26,7 +26,7 @@
 
 (rf/reg-sub ::auth
   (fn [_ _]
-    (rf/subscribe [::firebase/auth #(get % ::auth) [::auth]]))
+    (rf/subscribe [::firebase/auth]))
   (fn [auth _]
     (println ::auth auth)
     auth))

@@ -19,13 +19,11 @@
   (let [fb-db (.database firebase-app)
         fb-auth (.auth firebase-app)]
 
-    ;;
     ;; Database subscription
     (rf/reg-sub-raw
       ::db
       (fn [db-atom [_ path-kv]]
-        (let [path (kv->path path-kv)
-              -ref (.ref fb-db path)
+        (let [-ref (.ref fb-db (kv->path path-kv))
               read-fn #(rf/dispatch [::db-write path-kv (js->clj (.val %) :keywordize-keys true)])
               unref (.on -ref "value" read-fn)]
           (ratom/make-reaction
@@ -33,17 +31,15 @@
             :on-dispose #(.off -ref "value" read-fn)))))
 
     ;; Authentication subscription
-    ;; TODO: Drop the `mapper` and `read-ev` totally, we write and read from ::db
-    ;; Just supply a handler for errors
     (rf/reg-sub-raw
       ::auth
-      (fn [db-atom [_ mapper read-ev]]
+      (fn [db-atom _]
         ;; NOTE: No point in converting `User` instance to clj
-        (let [read-fn #(rf/dispatch (conj read-ev %))
+        (let [read-fn #(rf/dispatch [::db-write [::auth] %])
               unref (.onAuthStateChanged fb-auth read-fn)]
           ;; NOTE: Not doing initial dispatch for current user
           (ratom/make-reaction
-            (fn [] (mapper @db-atom))
+            (fn [] (get @db-atom ::auth))
             :on-dispose unref))))
 
     ;; DB service
@@ -61,7 +57,6 @@
     ;; Auth service
     (rf/reg-fx
       ::auth
-      ;; TODO: Support all types of logins as well as signup
       (fn [[type {:keys [done-ev error-ev] :as params}]]
         (println ::auth-fx type done-ev error-ev)
         (condp = type
@@ -70,6 +65,15 @@
                      ;; NOTE: No point in converting `User` instance to clj
                      (.then #(rf/dispatch (conj done-ev %))
                             #(rf/dispatch (conj error-ev %))))
+          :signup (-> fb-auth
+                      (.createUserWithEmailAndPassword (:email params) (:password params))
+                      ;; NOTE: No point in converting `User` instance to clj
+                      (.then #(rf/dispatch (conj done-ev %))
+                             #(rf/dispatch (conj error-ev %))))
+          :logout (-> (.signOut fb-auth)
+                      ;; NOTE: No point in converting `User` instance to clj
+                      (.then #(rf/dispatch (conj done-ev %))
+                             #(rf/dispatch (conj error-ev %))))
           :google (let [provider (new js/firebase.auth.GoogleAuthProvider)]
                     (.addScope provider "profile")
                     (.addScope provider "email")
@@ -78,25 +82,6 @@
                         (.signInWithPopup provider)
                         (.then #(rf/dispatch (conj done-ev (.-result %)))
                                #(rf/dispatch (conj error-ev %))))))))
-
-    ;; TODO: Hide logins and signups behind single ::auth
-    (rf/reg-fx
-      ::signup
-      (fn [[email password done-ev error-ev]]
-        (-> fb-auth
-            (.createUserWithEmailAndPassword email password)
-            ;; NOTE: No point in converting `User` instance to clj
-            (.then #(rf/dispatch (conj done-ev %))
-                   #(rf/dispatch (conj error-ev %))))))
-
-    ;; TODO: Hide logins and signups behind single ::auth
-    (rf/reg-fx
-      ::logout
-      (fn [[done-ev error-ev]]
-        (-> (.signOut fb-auth)
-            ;; NOTE: No point in converting `User` instance to clj
-            (.then #(rf/dispatch (conj done-ev %))
-                   #(rf/dispatch (conj error-ev %))))))
 
     ;; DB event
     (rf/reg-event-fx
@@ -115,20 +100,20 @@
         (assoc cofx ::auth [type params])))
 
     ;; Signup event
-    ;; TODO: Make :signup request to ::auth once we migrate ::auth and ::signup services
     (rf/reg-event-fx
       ::signup
       [rf/debug]
       (fn [cofx [_ email password done-ev error-ev]]
-        ;; TODO: update with conj to vector
-        (assoc cofx ::signup [email password done-ev error-ev])))
+        (assoc cofx ::auth [:signup {:email email
+                                     :password password
+                                     :done-ev done-ev
+                                     :error-ev error-ev}])))
 
     (rf/reg-event-fx
       ::logout
       [rf/debug]
       (fn [cofx [_ done-ev error-ev]]
-        ;; TODO: update with conj to vector
-        (assoc cofx ::logout [done-ev error-ev])))))
+        (assoc cofx ::auth [:logout {:done-ev done-ev error-ev error-ev}])))))
 
 (defn initialize-firebase [config]
   (try

@@ -9,10 +9,12 @@
   (fn [db [_ user]]
     (assoc db ::user user)))
 
-(rf/reg-event-db ::signup
+(rf/reg-event-fx ::signup
   [rf/debug]
-  (fn [db [_ user]]
-    (assoc db ::user user)))
+  (fn [fx [_ user]]
+    (if (some? user)
+      (assoc fx :dispatch [::firebase/db [::users (.-uid user)] {:id (.-uid user)}])
+      fx)))
 
 ;; TODO
 (rf/reg-event-db ::login-error
@@ -65,5 +67,7 @@
     [:label
      "Password"
      [:input {:name "password" :type :password}]]
-    [:button {:type :submit} "Login"]]])
+    [:button {:type :submit} "Login"]]
+   [:button {:on-click #(rf/dispatch [::user/login :google])}
+            "Login with Google"]])
 

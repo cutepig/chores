@@ -14,8 +14,6 @@
      [:div.home
       [:div.home-login
        [login/login-panel]
-       [:button {:on-click #(rf/dispatch [::user/login :google])}
-                "Login with Google"]
       [:div.home-signup
        [login/signup-panel]]]]]))
 

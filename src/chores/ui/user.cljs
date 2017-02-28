@@ -99,9 +99,7 @@
     (assoc db ::location location)))
 
 (defn user-panel []
-  (let [auth-user @(rf/subscribe [::firebase/auth
-                                  #(get-in % [::auth])
-                                  [::set-auth]])
+  (let [auth-user @(rf/subscribe [::firebase/auth])
         user @(rf/subscribe [::get-user (if (nil? auth-user) nil (.-uid auth-user))])]
     [:div.user-panel
      [:h2 "Current user"]
