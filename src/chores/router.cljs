@@ -2,7 +2,7 @@
   (:require [reagent.core :as r]
             [re-frame.core :as rf]
             [domkm.silk :as silk]
-            [re-frame-history.core :as history]))
+            [chores.fx.history :as history]))
 
 (defn make-click-handler []
   (fn [ev]

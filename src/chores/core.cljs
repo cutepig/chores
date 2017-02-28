@@ -3,7 +3,7 @@
             [re-frame.core :as rf]
             [cljsjs.firebase]
             [chores.fx.firebase :as firebase]
-            [re-frame-history.core :as history]
+            [chores.fx.history :as history]
             [domkm.silk :as silk]
             [camel-snake-kebab.core]
             [chores.router :as router]

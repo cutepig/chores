@@ -1,4 +1,4 @@
-(ns re-frame-history.core
+(ns chores.fx.history
   (:require [reagent.ratom :as ratom]
             [re-frame.core :as rf]))
 

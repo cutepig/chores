@@ -1,6 +1,6 @@
 (ns chores.ui.screens.groups
   (:require [re-frame.core :as rf]
-            [re-frame-history.core :as history]
+            [chores.fx.history :as history]
             [chores.router :as router]
             [chores.db.user :as user]
             [chores.ui.core :as ui]

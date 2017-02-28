@@ -2,7 +2,7 @@
   (:require [reagent.core :as r]
             [re-frame.core :as rf]
             [chores.fx.firebase :as firebase]
-            [re-frame-history.core :as history]))
+            [chores.fx.history :as history]))
 
 (rf/reg-event-db ::set-groups
   [rf/debug]
