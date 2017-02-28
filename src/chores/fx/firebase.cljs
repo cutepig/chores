@@ -1,4 +1,4 @@
-(ns re-frame-firebase.core
+(ns chores.fx.firebase
   (:require [clojure.string :as s]
             [reagent.ratom :as ratom]
             [re-frame.core :as rf]

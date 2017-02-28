@@ -1,6 +1,6 @@
 (ns chores.db.task
   (:require [re-frame.core :as rf]
-            [re-frame-firebase.core :as firebase]
+            [chores.fx.firebase :as firebase]
             [chores.db.group :as group]))
 
 ;; TODO

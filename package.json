@@ -7,7 +7,7 @@
     "test": "sass-lint",
     "build:css": "node-sass --include-path node_modules --include-path src src/chores/ui/index.scss > resources/public/css/style.css",
     "watch:css": "chokidar \"src/chores/**/*.scss\" --initial --verbose -c \"npm run build:css\"",
-    "start": "start powershell -command \"lein figwheel\" && npm run watch:css"
+    "start": "start powershell -noexit -command \"lein figwheel\" && npm run watch:css"
   },
   "repository": {
     "type": "git",

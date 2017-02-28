@@ -2,7 +2,7 @@
   (:require [reagent.core :as r]
             [re-frame.core :as rf]
             [cljsjs.firebase]
-            [re-frame-firebase.core :as firebase]
+            [chores.fx.firebase :as firebase]
             [re-frame-history.core :as history]
             [domkm.silk :as silk]
             [camel-snake-kebab.core]

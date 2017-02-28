@@ -1,7 +1,7 @@
 (ns chores.ui.user
   (:require [reagent.core :as r]
             [re-frame.core :as rf]
-            [re-frame-firebase.core :as firebase]
+            [chores.fx.firebase :as firebase]
             [re-frame-history.core :as history]))
 
 (rf/reg-event-db ::set-groups

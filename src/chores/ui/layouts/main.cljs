@@ -1,7 +1,7 @@
 (ns chores.ui.layouts.main
   (:require [reagent.core :as r]
             [re-frame.core :as rf]
-            [re-frame-firebase.core :as firebase]
+            [chores.fx.firebase :as firebase]
             [re-frame-history.core :as history]
             [chores.db.user :as user]))
 

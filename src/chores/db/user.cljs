@@ -1,7 +1,7 @@
 (ns chores.db.user
   (:require [reagent.core :as r]
             [re-frame.core :as rf]
-            [re-frame-firebase.core :as firebase]
+            [chores.fx.firebase :as firebase]
             [chores.db.task :as task]))
 
 (rf/reg-event-db ::auth

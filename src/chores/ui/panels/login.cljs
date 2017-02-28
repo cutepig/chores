@@ -1,6 +1,6 @@
 (ns chores.ui.panels.login
   (:require [re-frame.core :as rf]
-            [re-frame-firebase.core :as firebase]
+            [chores.fx.firebase :as firebase]
             [chores.db.user :as user]))
 
 ;; TODO: Display maybe a notification or smth
