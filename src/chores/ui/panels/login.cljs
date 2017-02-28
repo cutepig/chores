@@ -1,6 +1,7 @@
 (ns chores.ui.panels.login
   (:require [re-frame.core :as rf]
-            [re-frame-firebase.core :as firebase]))
+            [re-frame-firebase.core :as firebase]
+            [chores.db.user :as user]))
 
 ;; TODO: Display maybe a notification or smth
 (rf/reg-event-db ::login
@@ -24,15 +25,13 @@
   (fn [db _] db))
 
 (defn on-login [ev]
-  (println "login" ev)
   (.preventDefault ev)
   (let [form-data (js/FormData. (.-currentTarget ev))
         email (.get form-data "email")
         password (.get form-data "password")]
-    (rf/dispatch [::firebase/auth email password [::login] [::login-error]])))
+    (rf/dispatch [::user/login :email {:email email :password password}])))
 
 (defn on-signup [ev]
-  (println "signup" ev)
   (.preventDefault ev)
   (let [form-data (js/FormData. (.-currentTarget ev))
         email (.get form-data "email")

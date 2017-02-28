@@ -19,9 +19,10 @@
     (assoc db ::user user)))
 
 (rf/reg-event-fx ::login
+  [rf/debug]
   (fn [fx [_ type params]]
-    (assoc fx :dispatch [::firebase/auth
-                         [type {:done-ev [::auth] :error-ev [::auth-error]}]])))
+    (assoc fx :dispatch [::firebase/auth type
+                         (merge params {:done-ev [::auth] :error-ev [::auth-error]})])))
 
 (rf/reg-sub ::auth
   (fn [_ _]
@@ -35,7 +36,7 @@
     (rf/subscribe [::auth]))
   (fn [auth]
     (if (some? auth)
-      @(rf/subscribe [::firebase/db (str "/users/" (.-uid auth)) #(get % ::user) [::user]])
+      @(rf/subscribe [::firebase/db [::users (.-uid auth)]])
       nil)))
 
 (rf/reg-sub ::deeds

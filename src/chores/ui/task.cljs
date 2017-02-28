@@ -10,10 +10,7 @@
 (rf/reg-sub ::get-tasks
   (fn [[_ group-id] _]
     (println ::get-tasks group-id)
-    (rf/subscribe [::firebase/db
-                    (str "/groups/" group-id "/tasks")
-                    #(get % ::tasks)
-                    [::set-tasks]]))
+    (rf/subscribe [::firebase/db [::groups group-id ::tasks]]))
   (fn [tasks _] tasks))
 
 (defn task-card [{:keys [task]}]

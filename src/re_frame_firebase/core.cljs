@@ -1,33 +1,35 @@
 (ns re-frame-firebase.core
-  (:require [reagent.ratom :as ratom]
+  (:require [clojure.string :as s]
+            [reagent.ratom :as ratom]
             [re-frame.core :as rf]
             [cljsjs.firebase]))
 
+(rf/reg-event-db ::db-write
+  [rf/debug]
+  (fn [db [_ path-kv value]]
+    (assoc-in db path-kv value)))
+
+(defn kv->path [kv]
+  (->> kv
+       (map #(if (keyword? %) (name %) %))
+       (s/join "/")
+       (str "/")))
+
 (defn reg-firebase [firebase-app]
-  ;; TODO: Reference counting for firebase refs. Currently we just leave them hanging.
-  ;; But we do get rid of subscriptions created with `ref.on()`.
-  ;; TODO: In addition to ref we should also store the generated atom which we can
-  ;; then pull from cache.
-  (let [refs (atom {})
-        fb-db (.database firebase-app)
+  (let [fb-db (.database firebase-app)
         fb-auth (.auth firebase-app)]
+
+    ;;
     ;; Database subscription
     (rf/reg-sub-raw
       ::db
-      ;; TODO: Make more of this action configurable, is it `.on` or is it `.once`,
-      ;; Do we subscribe to `value` or one of the child-events
-      ;; TODO: Should `mapper` be just a `read-path` making reaction `(get-in @db-atom read-path)`?
-      ;; TODO: Drop the `mapper` and `read-ev` totally, we write and read from ::db
-      ;; Just supply a handler for errors
-      ;; Also `path` as kv
-      (fn [db-atom [_ path mapper read-ev]]
-        (let [-ref (or (get @refs path) (.ref fb-db path))
-              read-fn #(rf/dispatch (conj read-ev (js->clj (.val %) :keywordize-keys true)))
-              ;; TODO: Error-ev? where to hook
+      (fn [db-atom [_ path-kv]]
+        (let [path (kv->path path-kv)
+              -ref (.ref fb-db path)
+              read-fn #(rf/dispatch [::db-write path-kv (js->clj (.val %) :keywordize-keys true)])
               unref (.on -ref "value" read-fn)]
-          (swap! refs #(assoc % path -ref))
           (ratom/make-reaction
-            (fn [] (mapper @db-atom))
+            (fn [] (get-in @db-atom path-kv))
             :on-dispose #(.off -ref "value" read-fn)))))
 
     ;; Authentication subscription
@@ -49,12 +51,12 @@
       ::db
       ;; TODO: Make the action configurable with different actions:
       ;; `set`, `update`, `remove`, `push`
-      (fn [[path data done-ev error-ev]]
-        (println ::db-fx path data done-ev error-ev)
-        (-> (.ref fb-db path)
+      (fn [[path-kv data done-ev error-ev]]
+        (println ::db-fx path-kv data (kv->path path-kv))
+        (-> (.ref fb-db (kv->path path-kv))
             (.set (clj->js data))
-            (.then #(rf/dispatch done-ev)
-                   #(rf/dispatch (conj error-ev %))))))
+            (.then (if (some? done-ev) #(rf/dispatch done-ev) identity)
+                   (if (some? error-ev) #(rf/dispatch (conj error-ev %)) identity)))))
 
     ;; Auth service
     (rf/reg-fx
@@ -99,6 +101,7 @@
     ;; DB event
     (rf/reg-event-fx
       ::db
+      [rf/debug]
       (fn [cofx [_ path data done-ev error-ev]]
         (println ::db-event-fx path data done-ev error-ev)
         (assoc cofx ::db [path data done-ev error-ev])))
@@ -106,19 +109,23 @@
     ;; Auth event
     (rf/reg-event-fx
       ::auth
+      [rf/debug]
       (fn [cofx [_ type params]]
+        (println ::auth type params)
         (assoc cofx ::auth [type params])))
 
     ;; Signup event
     ;; TODO: Make :signup request to ::auth once we migrate ::auth and ::signup services
     (rf/reg-event-fx
       ::signup
+      [rf/debug]
       (fn [cofx [_ email password done-ev error-ev]]
         ;; TODO: update with conj to vector
         (assoc cofx ::signup [email password done-ev error-ev])))
 
     (rf/reg-event-fx
       ::logout
+      [rf/debug]
       (fn [cofx [_ done-ev error-ev]]
         ;; TODO: update with conj to vector
         (assoc cofx ::logout [done-ev error-ev])))))
