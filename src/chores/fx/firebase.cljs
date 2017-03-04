@@ -48,7 +48,6 @@
       ;; TODO: Make the action configurable with different actions:
       ;; `set`, `update`, `remove`, `push`
       (fn [[path-kv data done-ev error-ev]]
-        (println ::db-fx path-kv data (kv->path path-kv))
         (-> (.ref fb-db (kv->path path-kv))
             (.set (clj->js data))
             (.then (if (some? done-ev) #(rf/dispatch done-ev) identity)
@@ -58,7 +57,6 @@
     (rf/reg-fx
       ::auth
       (fn [[type {:keys [done-ev error-ev] :as params}]]
-        (println ::auth-fx type done-ev error-ev)
         (condp = type
           :email (-> fb-auth
                      (.signInWithEmailAndPassword (:email params) (:password params))
@@ -88,7 +86,6 @@
       ::db
       [rf/debug]
       (fn [cofx [_ path data done-ev error-ev]]
-        (println ::db-event-fx path data done-ev error-ev)
         (assoc cofx ::db [path data done-ev error-ev])))
 
     ;; Auth event
@@ -96,7 +93,6 @@
       ::auth
       [rf/debug]
       (fn [cofx [_ type params]]
-        (println ::auth type params)
         (assoc cofx ::auth [type params])))
 
     ;; Signup event

@@ -28,7 +28,6 @@
   (fn [_ _]
     (rf/subscribe [::firebase/auth]))
   (fn [auth _]
-    (println ::auth auth)
     auth))
 
 (rf/reg-sub ::user
