@@ -28,9 +28,9 @@
 (def routes
   (silk/routes [[::home/index [[]]]
                 [::home/index [["index.html"]]]
-                [::groups/groups [["groups"]]]
-                [::group/group [["groups" :group-id]]]
-                [::user [["groups" :group-id "users" :user-id]]]]))
+                [::groups/groups [["g"]]]
+                [::group/me [["g" :group-id]]]
+                [::group/user [["g" :group-id "u" :user-id]]]]))
 
 (router/reg-route ::user
   (fn user-page [{:keys [group-id user-id]}]

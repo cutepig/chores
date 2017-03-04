@@ -8,7 +8,7 @@
 (defn home-screen []
   (let [user @(rf/subscribe [::user/user])]
     ;; TODO: `[::route/route <route key>]` using `silk/depart`
-    (if (some? user) (rf/dispatch [::router/push "/groups"]))
+    (if (some? user) (rf/dispatch [::router/push "/g"]))
     [main-layout
      [:div.home
       [:div.home-login

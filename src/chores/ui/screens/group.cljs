@@ -18,4 +18,5 @@
         [user-earnings-panel {:group-id group-id :user-id (:id user)}]
         [tasks/tasks-panel {:group-id group-id :user-id (:id user)}]]])))
 
-(router/reg-route ::group group-screen)
+(router/reg-route ::me group-screen)
+(router/reg-route ::user group-screen)
