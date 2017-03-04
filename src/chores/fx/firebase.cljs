@@ -77,7 +77,9 @@
                     (println ::google provider)
                     (-> fb-auth
                         (.signInWithPopup provider)
-                        (.then #(rf/dispatch (conj done-ev %))
+                        ;; FIXME: Should we utilize `(.-credential %)` somehow?
+                        ;; @see https://firebase.google.com/docs/reference/js/firebase.auth#.UserCredential
+                        (.then #(rf/dispatch (conj done-ev (.-user %)))
                                #(rf/dispatch (conj error-ev %))))))))
 
     ;; DB event

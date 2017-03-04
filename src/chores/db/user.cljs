@@ -5,17 +5,18 @@
             [chores.db.task :as task]
             [chores.ui.notifications :as notifications]))
 
+(defn auth-notification [auth]
+  (if (some? auth)
+    (let [username (or (.-displayName auth) (.-email auth))]
+      [::notifications/info (str "Logged in as " username)])))
+
 (rf/reg-event-fx ::auth
   [rf/debug]
   (fn [fx [_ auth]]
     (println ::auth auth)
     (-> fx
       (assoc-in [:db ::auth] auth)
-      (assoc :dispatch (if (and (nil? (get-in fx [::db auth])) (some? auth))
-                         ;; TODO: "Logged in as $username"
-                         [::notifications/info "Logged in"]
-                         (if (and (some? (get-in fx [::db auth])) (nil? auth))
-                           [::notifications/info "Logged out"]))))))
+      (assoc :dispatch (auth-notification auth)))))
 
 (rf/reg-event-fx ::auth-error
   [rf/debug]
