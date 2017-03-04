@@ -88,9 +88,7 @@
    [:pre (js/JSON.stringify (clj->js user) nil 2)]
    [user-groups {:user-id (:id user)}]
    [user-deeds {:user-id (:id user) :group-id "d1dcedb2-e7be-401c-a71c-a5008d225916"}]
-   [:button {:on-click #(rf/dispatch [::firebase/logout
-                                      [::set-auth]
-                                      [::set-auth-error]])}
+   [:button {:on-click #(rf/dispatch [::user/logout])}
     "Logout"]])
 
 (rf/reg-event-db ::location

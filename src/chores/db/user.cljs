@@ -2,16 +2,25 @@
   (:require [reagent.core :as r]
             [re-frame.core :as rf]
             [chores.fx.firebase :as firebase]
-            [chores.db.task :as task]))
+            [chores.db.task :as task]
+            [chores.ui.notifications :as notifications]))
 
-(rf/reg-event-db ::auth
+(rf/reg-event-fx ::auth
   [rf/debug]
-  (fn [db [_ auth]]
-    (assoc db ::auth auth)))
+  (fn [fx [_ auth]]
+    (println ::auth auth)
+    (-> fx
+      (assoc-in [:db ::auth] auth)
+      (assoc :dispatch (if (and (nil? (get-in fx [::db auth])) (some? auth))
+                         ;; TODO: "Logged in as $username"
+                         [::notifications/info "Logged in"]
+                         (if (and (some? (get-in fx [::db auth])) (nil? auth))
+                           [::notifications/info "Logged out"]))))))
 
-(rf/reg-event-db ::auth-error
+(rf/reg-event-fx ::auth-error
   [rf/debug]
-  (fn [db [_ auth]] db))
+  (fn [fx [_ e]]
+    (assoc fx :dispatch [::notifications/error (.-message e)])))
 
 (rf/reg-event-db ::user
   [rf/debug]
@@ -23,6 +32,11 @@
   (fn [fx [_ type params]]
     (assoc fx :dispatch [::firebase/auth type
                          (merge params {:done-ev [::auth] :error-ev [::auth-error]})])))
+
+(rf/reg-event-fx ::logout
+  [rf/debug]
+  (fn [fx _]
+    (assoc fx :dispatch [::firebase/logout [::auth] [::auth-error]])))
 
 (rf/reg-sub ::auth
   (fn [_ _]

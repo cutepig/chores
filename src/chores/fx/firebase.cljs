@@ -69,7 +69,6 @@
                       (.then #(rf/dispatch (conj done-ev %))
                              #(rf/dispatch (conj error-ev %))))
           :logout (-> (.signOut fb-auth)
-                      ;; NOTE: No point in converting `User` instance to clj
                       (.then #(rf/dispatch (conj done-ev %))
                              #(rf/dispatch (conj error-ev %))))
           :google (let [provider (new js/firebase.auth.GoogleAuthProvider)]
@@ -78,7 +77,7 @@
                     (println ::google provider)
                     (-> fb-auth
                         (.signInWithPopup provider)
-                        (.then #(rf/dispatch (conj done-ev (.-result %)))
+                        (.then #(rf/dispatch (conj done-ev %))
                                #(rf/dispatch (conj error-ev %))))))))
 
     ;; DB event

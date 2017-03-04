@@ -1,21 +1,19 @@
 (ns chores.ui.layouts.main
   (:require [reagent.core :as r]
             [re-frame.core :as rf]
-            [chores.fx.firebase :as firebase]
             [chores.fx.router :as router]
             [chores.db.user :as user]))
 
 (rf/reg-event-fx ::logout
   [rf/debug]
   (fn logout [fx _]
-    (assoc fx :dispatch-n [[::firebase/logout]
+    (assoc fx :dispatch-n [[::user/logout]
                            [::router/push "/"]]
               :db nil)))
 
 (defn main-layout []
   (let [auth @(rf/subscribe [::user/auth])
         children (r/children (r/current-component))]
-    (js/console.info ::main-layout auth)
     [:div.main
      [:header
       [:h1 "Chores"]

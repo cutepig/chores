@@ -6,6 +6,7 @@
             [chores.fx.router :as router]
             [domkm.silk :as silk]
             [camel-snake-kebab.core]
+            [chores.ui.notifications :as notifications]
             [chores.ui.screens.home :as home]
             [chores.ui.screens.groups :as groups]
             [chores.ui.screens.group :as group]))
@@ -43,7 +44,8 @@
 
 (defn chores-screen []
   [:div.chores
-   [router/router {}]])
+   [router/router {}
+    [notifications/notifications-panel]]])
 
 (def firebase-config {:apiKey "AIzaSyDg0XgimVokGyOIQREFSSUow441WFx5O1w"
                       ;; TODO: Is this `localhost` in local development?
