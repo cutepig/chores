@@ -13,7 +13,6 @@
 (rf/reg-event-fx ::auth
   [rf/debug]
   (fn [fx [_ auth]]
-    (println ::auth auth)
     (-> fx
       (assoc-in [:db ::auth] auth)
       (assoc :dispatch (auth-notification auth)))))

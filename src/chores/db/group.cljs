@@ -10,3 +10,8 @@
       (r/atom nil)))
   (fn [group _] group))
 
+(rf/reg-sub ::users
+  (fn [[_ group-id] _]
+    (rf/subscribe [::group group-id]))
+  (fn [group _]
+    (:members group)))

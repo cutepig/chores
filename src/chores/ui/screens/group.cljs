@@ -5,7 +5,7 @@
             [chores.db.user :as user]
             [chores.ui.core :as ui]
             [chores.ui.panels.tasks :as tasks]
-            [chores.ui.panels.user :refer [user-earnings-panel]]
+            [chores.ui.panels.user :refer [users-panel user-earnings-panel]]
             [chores.ui.layouts.main :refer [main-layout]]))
 
 (defn group-screen [{:keys [group-id]}]
@@ -15,6 +15,7 @@
       [main-layout
        [:div.group
         [:h2 (:name group)]
+        [users-panel {:group-id group-id}]
         [user-earnings-panel {:group-id group-id :user-id (:id user)}]
         [tasks/tasks-panel {:group-id group-id :user-id (:id user)}]]])))
 

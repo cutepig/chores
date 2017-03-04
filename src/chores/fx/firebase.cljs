@@ -74,7 +74,6 @@
           :google (let [provider (new js/firebase.auth.GoogleAuthProvider)]
                     (.addScope provider "profile")
                     (.addScope provider "email")
-                    (println ::google provider)
                     (-> fb-auth
                         (.signInWithPopup provider)
                         ;; FIXME: Should we utilize `(.-credential %)` somehow?
