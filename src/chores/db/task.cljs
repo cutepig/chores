@@ -1,11 +1,19 @@
 (ns chores.db.task
   (:require [re-frame.core :as rf]
             [chores.fx.firebase :as firebase]
-            [chores.db.group :as group]))
+            [chores.db.group :as group]
+            [chores.ui.notifications :as notifications]))
 
 ;; TODO
-(rf/reg-event-db ::add-deed-done [rf/debug] (fn [db _] db))
-(rf/reg-event-db ::add-deed-error [rf/debug] (fn [db _] db))
+(rf/reg-event-fx ::add-deed-done
+  [rf/debug]
+  (fn [fx _]
+    (assoc fx :dispatch [::notifications/info "Deed added"])))
+
+(rf/reg-event-fx ::add-deed-error
+  [rf/debug]
+  (fn [fx e]
+    (assoc fx :dispatch [::notifications/error (.-message e)])))
 
 (rf/reg-event-fx ::add-deed
   [rf/debug]
