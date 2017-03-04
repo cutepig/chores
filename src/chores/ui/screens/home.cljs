@@ -1,15 +1,14 @@
 (ns chores.ui.screens.home
   (:require [re-frame.core :as rf]
-            [chores.fx.history :as history]
             [chores.ui.panels.login :as login]
-            [chores.router :as router]
+            [chores.fx.router :as router]
             [chores.db.user :as user]
             [chores.ui.layouts.main :refer [main-layout]]))
 
 (defn home-screen []
   (let [user @(rf/subscribe [::user/user])]
     ;; TODO: `[::route/route <route key>]` using `silk/depart`
-    (if (some? user) (rf/dispatch [::history/push "/groups"]))
+    (if (some? user) (rf/dispatch [::router/push "/groups"]))
     [main-layout
      [:div.home
       [:div.home-login

@@ -2,14 +2,15 @@
   (:require [reagent.core :as r]
             [re-frame.core :as rf]
             [chores.fx.firebase :as firebase]
-            [chores.fx.history :as history]
+            [chores.fx.router :as router]
             [chores.db.user :as user]))
 
 (rf/reg-event-fx ::logout
   [rf/debug]
   (fn logout [fx _]
     (assoc fx :dispatch-n [[::firebase/logout]
-                           [::history/push "/"]])))
+                           [::router/push "/"]]
+              :db nil)))
 
 (defn main-layout []
   (let [auth @(rf/subscribe [::user/auth])
