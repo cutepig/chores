@@ -1,7 +1,6 @@
 (ns chores.ui.screens.groups
   (:require [re-frame.core :as rf]
-            [chores.fx.history :as history]
-            [chores.router :as router]
+            [chores.fx.router :as router]
             [chores.db.user :as user]
             [chores.ui.core :as ui]
             [chores.ui.layouts.main :refer [main-layout]]))
@@ -18,7 +17,7 @@
     (let [groups @(rf/subscribe [::groups])]
       (if (= 1 (count groups))
         ;; TODO: `[::route/route <route key>]` using `silk/depart`
-        (rf/dispatch [::history/push (str "/groups/" (name (ffirst groups)))]))
+        (rf/dispatch [::router/push (str "/groups/" (name (ffirst groups)))]))
       [main-layout
        [:div.groups
         [:h1 "Groups!"]

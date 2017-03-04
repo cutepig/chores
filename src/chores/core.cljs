@@ -3,10 +3,9 @@
             [re-frame.core :as rf]
             [cljsjs.firebase]
             [chores.fx.firebase :as firebase]
-            [chores.fx.history :as history]
+            [chores.fx.router :as router]
             [domkm.silk :as silk]
             [camel-snake-kebab.core]
-            [chores.router :as router]
             [chores.ui.screens.home :as home]
             [chores.ui.screens.groups :as groups]
             [chores.ui.screens.group :as group]))
@@ -44,7 +43,7 @@
 
 (defn chores-screen []
   [:div.chores
-   [router/router {:routes routes}]])
+   [router/router {}]])
 
 (def firebase-config {:apiKey "AIzaSyDg0XgimVokGyOIQREFSSUow441WFx5O1w"
                       ;; TODO: Is this `localhost` in local development?
@@ -57,7 +56,7 @@
 (do
   (rf/dispatch [:initialize-db])
   (firebase/reg-firebase (firebase/initialize-firebase firebase-config))
-  (history/reg-history (.createBrowserHistory js/History))
+  (router/reg-router routes)
   (r/render-component [chores-screen] (. js/document (getElementById "app"))))
 
 (defn on-js-reload []
